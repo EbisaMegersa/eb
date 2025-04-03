@@ -1,38 +1,47 @@
+import os
+from telegram import Update, LabeledPrice
+from telegram.ext import Application, CommandHandler, ContextTypes
 
-import logging
-from telegram import Update
-from telegram.ext import Application, CommandHandler, MessageHandler, filters, ContextTypes
+# Replace with your bot token
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # Secure method (recommended)
+# TOKEN = "YOUR_BOT_TOKEN"  # Hardcoded method (not recommended)
 
-# Enable logging
-logging.basicConfig(
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-    level=logging.INFO
-)
-
-# Bot token
-TOKEN = "7567821387:AAFN8gf0Bf2bYisApNnh-Lt-PzHP3tvRj3U"
+# Replace with your actual payment provider token
+PAYMENT_PROVIDER_TOKEN = "YOUR_PAYMENT_PROVIDER_TOKEN"
 
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Send a message when the command /start is issued."""
-    await update.message.reply_text('Hello! Welcome to the greeting bot! Send me any message.')
+    """Send an invoice when the user starts the bot."""
+    chat_id = update.message.chat_id
 
-async def echo(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
-    """Echo the user message and send a greeting."""
-    user_name = update.message.from_user.first_name
-    greeting = f"Hello {user_name}! Thanks for your message: {update.message.text}"
-    await update.message.reply_text(greeting)
+    await context.bot.send_invoice(
+        chat_id=chat_id,
+        title="Telegram Stars ⭐",
+        description="Purchase 1⭐ using XTR currency.",
+        payload="invoice_payload",  # Unique payload identifier
+        provider_token=PAYMENT_PROVIDER_TOKEN,
+        currency="XTR",  # Using XTR as currency
+        prices=[LabeledPrice(label="1⭐", amount=100)],  # Amount in smallest unit
+    )
+
+async def precheckout(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Confirm checkout process."""
+    query = update.pre_checkout_query
+    await query.answer(ok=True)
+
+async def successful_payment(update: Update, context: ContextTypes.DEFAULT_TYPE) -> None:
+    """Handle successful payment."""
+    chat_id = update.message.chat_id
+    await context.bot.send_message(chat_id, "Payment received! You have successfully purchased 1⭐.")
 
 def main() -> None:
     """Start the bot."""
-    # Create the Application
     application = Application.builder().token(TOKEN).build()
 
-    # Add handlers
     application.add_handler(CommandHandler("start", start))
-    application.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, echo))
+    application.add_handler(CommandHandler("pre_checkout_query", precheckout))
+    application.add_handler(CommandHandler("successful_payment", successful_payment))
 
-    # Run the bot
-    application.run_polling(allowed_updates=Update.ALL_TYPES)
+    application.run_polling()
 
 if __name__ == "__main__":
     main()

@@ -3,8 +3,8 @@ from telegram import Update, LabeledPrice
 from telegram.ext import Application, CommandHandler, ContextTypes
 
 # Replace with your bot token
-TOKEN = os.getenv("TELEGRAM_BOT_TOKEN")  # Secure method (recommended)
-# TOKEN = "YOUR_BOT_TOKEN"  # Hardcoded method (not recommended)
+TOKEN = os.getenv("7567821387:AAFN8gf0Bf2bYisApNnh-Lt-PzHP3tvRj3U")  # Secure method (recommended)
+# TOKEN = "7567821387:AAFN8gf0Bf2bYisApNnh-Lt-PzHP3tvRj3U"  # Hardcoded method (not recommended)
 
 # Replace with your actual payment provider token
 PAYMENT_PROVIDER_TOKEN = "YOUR_PAYMENT_PROVIDER_TOKEN"
